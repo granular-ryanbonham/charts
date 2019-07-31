@@ -44,6 +44,9 @@ spec:
 {{ toYaml .Values.agent.tolerations | indent 8 }}
 {{- end }}
       serviceAccountName: {{ template "jaeger.agent.serviceAccountName" . }}
+      {{- if .Values.agent.priorityClassName }}
+      priorityClassName: {{ .Values.agent.priorityClassName }}
+      {{- end }}
       containers:
       - name: {{ template "jaeger.agent.name" . }}
         image: {{ .Values.agent.image }}:{{ .Values.tag }}
@@ -54,9 +57,6 @@ spec:
         {{- range $key, $value := .Values.agent.cmdlineParams }}
         - name: {{ $key | replace "." "_" | replace "-" "_" | upper | quote }}
           value: {{ $value }}
-        {{- end }}
-        {{- if .Values.agent.priorityClassName }}
-        priorityClassName: {{ .Values.agent.priorityClassName }}
         {{- end }}
         ports:
         - name: zipkin-compact
